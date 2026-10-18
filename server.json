@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.OneWave-AI/gillby",
+  "title": "Gillby",
+  "description": "Florida marine conditions, forecasts, tides, hazards and coastal places for AI agents.",
+  "version": "1.0.0",
+  "websiteUrl": "https://gillby.vercel.app",
+  "repository": {
+    "url": "https://github.com/OneWave-AI/gillby-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://gillby.vercel.app/mcp"
+    }
+  ]
+}
+
