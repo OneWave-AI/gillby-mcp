@@ -67,3 +67,14 @@ Your agent calls `get_conditions` + `get_forecast` + `get_tides` for
 Built by [Gabriel Keding](https://www.onewave-ai.com). Not a navigation chart —
 verify depths and local notices before boating.
 
+
+## HTTP API for app developers
+
+Build with ordinary HTTP GET requests as well as MCP. Public marine endpoints need no API key. Personal account endpoints require OAuth and explicit user consent.
+
+- Developer guide and live examples: https://gillby.vercel.app/developers
+- API index: https://gillby.vercel.app/api/v1
+- OpenAPI schema: https://gillby.vercel.app/api/v1/openapi.json
+- FAQ: https://gillby.vercel.app/faq
+
+Preserve source names, timestamps and unavailable states. Honor HTTP 429 and Retry-After. Gillby API and MCP share admission limits.
