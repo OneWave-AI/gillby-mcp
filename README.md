@@ -6,6 +6,20 @@ water — and give it live marine conditions, forecasts, tides, hazards, and
 
 **No API key. No login. No signup.** Point your agent at the endpoint and go.
 
+## Why build with Gillby?
+
+Answer Florida boating and beach questions with structured coastal data instead
+of maintaining scrapers for multiple pages. Start with one conditions summary,
+then drill into forecasts, tides, hazards and coastal places using verified spot
+IDs. Source names, timestamps, freshness and unavailable states stay with the
+data. Use HTTP for your app or MCP for your assistant; public data needs no key.
+
+Try a real request:
+
+```bash
+curl --fail-with-body 'https://gillby.vercel.app/api/v1/conditions?spot=boca-inlet&view=summary'
+```
+
 ## Endpoint
 
 ```
