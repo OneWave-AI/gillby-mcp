@@ -6,7 +6,7 @@
     "name": "OneWave AI",
     "url": "https://github.com/OneWave-AI"
   },
-  "homepage": "https://gillby.vercel.app",
+  "homepage": "https://www.gillby.com",
   "repository": "https://github.com/OneWave-AI/gillby-mcp",
   "keywords": [
     "florida",
@@ -20,5 +20,5 @@
   ],
   "license": "MIT",
   "icon": ".claude-plugin/icon.png",
-  "privacyPolicyUrl": "https://gillby.vercel.app/privacy"
+  "privacyPolicyUrl": "https://www.gillby.com/privacy"
 }

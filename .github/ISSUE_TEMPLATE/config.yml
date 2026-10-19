@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Help and feedback
-    url: https://gillby.vercel.app/help
+    url: https://www.gillby.com/help
     about: Questions about the Gillby app or your account
   - name: Connection guide
-    url: https://gillby.vercel.app/integrations
+    url: https://www.gillby.com/integrations
     about: Setup steps for Claude, ChatGPT, Cursor and other MCP clients
   - name: Developer docs
-    url: https://gillby.vercel.app/developers
+    url: https://www.gillby.com/developers
     about: HTTP API, OpenAPI schema and examples

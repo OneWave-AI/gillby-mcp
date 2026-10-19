@@ -11,11 +11,11 @@
 <p align="center">
   <a href="https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.OneWave-AI%2Fgillby"><img alt="MCP Registry" src="https://img.shields.io/badge/MCP%20Registry-io.github.OneWave--AI%2Fgillby-20394D"></a>
   <a href="#claude-code-plugin"><img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-D97A3C"></a>
-  <a href="https://gillby.vercel.app/api/v1/openapi.json"><img alt="OpenAPI" src="https://img.shields.io/badge/OpenAPI-v1-62A6C3"></a>
+  <a href="https://www.gillby.com/api/v1/openapi.json"><img alt="OpenAPI" src="https://img.shields.io/badge/OpenAPI-v1-62A6C3"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-20394D"></a>
 </p>
 
-Connect any MCP-compatible agent (Claude, ChatGPT, Cursor, Windsurf, Claude Code) to **Gillby**, a guide to Florida water. Public data needs **no API key, no login, no signup**: point your agent at `https://gillby.vercel.app/mcp` and ask.
+Connect any MCP-compatible agent (Claude, ChatGPT, Cursor, Windsurf, Claude Code) to **Gillby**, a guide to Florida water. Public data needs **no API key, no login, no signup**: point your agent at `https://www.gillby.com/mcp` and ask.
 
 <p align="center">
   <img src="docs/gillby-panel.webp" alt="The Gillby coastal panel inside an AI assistant, showing spots across Florida on a map" width="420">
@@ -25,7 +25,7 @@ Connect any MCP-compatible agent (Claude, ChatGPT, Cursor, Windsurf, Claude Code
 
 I'm newer to boating. I'm not from Florida, but I've been down here for years. My wife said it first: it was way too hard to get a good read on the weather without checking five different things, and when we asked an AI, it didn't have good answers on its own.
 
-So I built Gillby. It's a hobby and a passion project: one map and one clock for a day on Florida water, plus this MCP server so your assistant can answer from real water data instead of guessing. More in [Why I built Gillby](https://gillby.vercel.app/blog/why-i-built-gillby).
+So I built Gillby. It's a hobby and a passion project: one map and one clock for a day on Florida water, plus this MCP server so your assistant can answer from real water data instead of guessing. More in [Why I built Gillby](https://www.gillby.com/blog/why-i-built-gillby).
 
 > "Can I run Boca Inlet tomorrow morning?" · "Is the Gulf Stream close off Palm Beach?" · "Any red tide on the Gulf coast?" · "Will my 2.5 ft draft make it to the sandbar at low tide?"
 
@@ -41,7 +41,7 @@ So I built Gillby. It's a hobby and a passion project: one map and one clock for
 ## Endpoint
 
 ```
-https://gillby.vercel.app/mcp
+https://www.gillby.com/mcp
 ```
 
 Streamable HTTP transport. Public data tools are open; personal vessel, route, places, trips and settings tools require the user's Gillby OAuth.
@@ -65,7 +65,7 @@ Connectors added on claude.ai also show up in Claude Desktop.
 **Claude Code**
 
 ```bash
-claude mcp add --transport http gillby https://gillby.vercel.app/mcp
+claude mcp add --transport http gillby https://www.gillby.com/mcp
 ```
 
 **Cursor / Windsurf** — add to your MCP config:
@@ -73,12 +73,12 @@ claude mcp add --transport http gillby https://gillby.vercel.app/mcp
 ```json
 {
   "mcpServers": {
-    "gillby": { "type": "http", "url": "https://gillby.vercel.app/mcp" }
+    "gillby": { "type": "http", "url": "https://www.gillby.com/mcp" }
   }
 }
 ```
 
-Try it: *"Use Gillby to check current conditions at Boca Inlet. Include source freshness and any unavailable data."* Full steps and troubleshooting: [connection guide](https://gillby.vercel.app/integrations).
+Try it: *"Use Gillby to check current conditions at Boca Inlet. Include source freshness and any unavailable data."* Full steps and troubleshooting: [connection guide](https://www.gillby.com/integrations).
 
 ## Claude Code plugin
 
@@ -123,7 +123,7 @@ claude plugin eval . --judge-model sonnet
 
 ## Tools
 
-96 tools on the hosted server, generated from the live [tool reference](https://gillby.vercel.app/llms-full.txt). Start with `list_spots` and `get_conditions` with `view=summary`; that one result carries the forecast, tides, scores, advisories, hazards, lightning and source freshness.
+96 tools on the hosted server, generated from the live [tool reference](https://www.gillby.com/llms-full.txt). Start with `list_spots` and `get_conditions` with `view=summary`; that one result carries the forecast, tides, scores, advisories, hazards, lightning and source freshness.
 
 <details>
 <summary>All 96 tools by category</summary>
@@ -271,12 +271,12 @@ claude plugin eval . --judge-model sonnet
 Everything is also available over ordinary HTTP GET. Public endpoints need no key; account endpoints need OAuth and the user's consent.
 
 ```bash
-curl --fail-with-body 'https://gillby.vercel.app/api/v1/conditions?spot=boca-inlet&view=summary'
+curl --fail-with-body 'https://www.gillby.com/api/v1/conditions?spot=boca-inlet&view=summary'
 ```
 
-- Developer guide, examples, error codes and versioning: https://gillby.vercel.app/developers
-- OpenAPI schema: https://gillby.vercel.app/api/v1/openapi.json
-- AI-readable docs: [llms.txt](https://gillby.vercel.app/llms.txt) and [llms-full.txt](https://gillby.vercel.app/llms-full.txt)
+- Developer guide, examples, error codes and versioning: https://www.gillby.com/developers
+- OpenAPI schema: https://www.gillby.com/api/v1/openapi.json
+- AI-readable docs: [llms.txt](https://www.gillby.com/llms.txt) and [llms-full.txt](https://www.gillby.com/llms-full.txt)
 
 **Rate limits.** About 60 data requests per minute per client, shared between the API and MCP. Over the limit you get HTTP 429 with `Retry-After`; honor it and back off. A request without a spot returns 400 `spot_required`.
 

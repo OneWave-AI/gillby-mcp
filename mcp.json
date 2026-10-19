@@ -2,7 +2,7 @@
   "mcpServers": {
     "gillby": {
       "type": "http",
-      "url": "https://gillby.vercel.app/mcp"
+      "url": "https://www.gillby.com/mcp"
     }
   }
 }

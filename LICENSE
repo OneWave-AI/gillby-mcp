@@ -28,5 +28,5 @@ plugin manifests, skills, agents and evals). It does not cover:
 - The Gillby name, logo and brand assets in assets/, which are trademarks of
   OneWave AI and may be used only to refer to Gillby.
 - The hosted Gillby service, its source code, scoring and routing models, or
-  the data it returns. Use of https://gillby.vercel.app/mcp and /api/v1 is
-  governed by the Gillby terms at https://gillby.vercel.app/terms.
+  the data it returns. Use of https://www.gillby.com/mcp and /api/v1 is
+  governed by the Gillby terms at https://www.gillby.com/terms.
