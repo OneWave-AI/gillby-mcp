@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: route-needs-draft
+description: Route request with no vessel info asks for draft instead of guessing
+tags: [route, guardrail]
+execution:
+  max_turns: 8
+  allowed_tools: [Skill]
+  prompt: "Give me a boat route from Hillsboro Inlet up to the Lake Boca sandbar."
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?gillby-route"'
+  - name: no-guessed-route
+    type: tool_used
+    tool: mcp__plugin_gillby_gillby__plan_route
+    min: 0
+    max: 0
+  - name: asks-for-draft
+    type: llm
+    criteria: |
+      PASS if the reply asks the user for their boat's draft (or a boat model to look up) before routing, and mentions air draft or bridges.
+      FAIL if it assumes a draft, names a boat the user did not give, or presents a route as verified.

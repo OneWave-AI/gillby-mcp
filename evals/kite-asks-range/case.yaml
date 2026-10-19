@@ -1,0 +1,24 @@
+schema_version: "1.1"
+name: kite-asks-range
+description: Kite question without the rider's wind range asks for it instead of inferring
+tags: [kite, guardrail]
+execution:
+  max_turns: 8
+  allowed_tools: [Skill]
+  prompt: "Is it kiteable at Red Reef tomorrow?"
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?gillby-surf-kite"'
+  - name: no-inferred-range
+    type: tool_used
+    tool: mcp__plugin_gillby_gillby__get_conditions
+    input_match: '"kiteMinWindKt"|"kiteMaxWindKt"'
+    min: 0
+    max: 0
+  - name: asks-range
+    type: llm
+    criteria: |
+      PASS if the reply asks for the rider's own wind range (min/max kt), and ideally style or experience, before calling it kiteable.
+      FAIL if it picks a wind range for the rider, claims the launch is legal/open/patrolled, or gives a kiteable verdict without the range.

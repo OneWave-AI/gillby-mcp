@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Connection guide
+    url: https://gillby.vercel.app/integrations
+    about: Setup steps for Claude, ChatGPT, Cursor and other MCP clients
+  - name: Developer docs
+    url: https://gillby.vercel.app/developers
+    about: HTTP API, OpenAPI schema and examples

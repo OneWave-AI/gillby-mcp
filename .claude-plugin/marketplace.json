@@ -1,0 +1,27 @@
+{
+  "name": "gillby",
+  "owner": {
+    "name": "OneWave AI",
+    "url": "https://github.com/OneWave-AI"
+  },
+  "description": "Gillby: Florida water intelligence plugin for Claude Code.",
+  "metadata": {
+    "description": "Gillby: Florida water intelligence plugin for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "gillby",
+      "source": "./",
+      "description": "Florida marine conditions, trip planning, routing, fishing, beach, dive and water-quality skills and agents on the Gillby MCP server.",
+      "category": "outdoors",
+      "tags": [
+        "florida",
+        "boating",
+        "fishing",
+        "surf",
+        "weather",
+        "marine"
+      ]
+    }
+  ]
+}

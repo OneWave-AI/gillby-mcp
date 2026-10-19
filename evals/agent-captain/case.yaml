@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: agent-captain
+description: gillby-captain launches with its MCP tool wildcard and preloaded skills, and returns the structured call
+tags: [agents]
+execution:
+  max_turns: 12
+  timeout_seconds: 400
+  allowed_tools: [Agent, Skill]
+  prompt: "Use the gillby-captain agent: should I run out Boca Inlet tomorrow morning to fish offshore? I don't want to give boat details."
+graders:
+  - name: delegated
+    type: tool_used
+    tool: Agent
+    input_match: 'gillby-captain'
+  - name: subagent-used-gillby
+    type: regex
+    target: mock_calls
+    pattern: "get_conditions"
+  - name: structured-call
+    type: llm
+    criteria: |
+      PASS if the final reply contains an explicit NO-GO (or "don't go") call for tomorrow morning, the reasons with units (seas ft, wind kt), the Small Craft Advisory, and a best window or "none published".
+      FAIL if it recommends going, invents a boat, or has no clear call.

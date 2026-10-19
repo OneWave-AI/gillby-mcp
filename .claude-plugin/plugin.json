@@ -1,0 +1,22 @@
+{
+  "name": "gillby",
+  "version": "1.0.0",
+  "description": "Florida water intelligence for Claude: live marine conditions, go/no-go trip calls, depth- and bridge-aware routing, fishing, beach, dive and water-quality reports from the Gillby MCP server.",
+  "author": {
+    "name": "OneWave AI",
+    "url": "https://github.com/OneWave-AI"
+  },
+  "homepage": "https://gillby.vercel.app",
+  "repository": "https://github.com/OneWave-AI/gillby-mcp",
+  "keywords": [
+    "florida",
+    "marine",
+    "boating",
+    "fishing",
+    "tides",
+    "weather",
+    "surf",
+    "mcp"
+  ],
+  "license": "MIT"
+}

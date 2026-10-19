@@ -1,0 +1,32 @@
+schema_version: "1.1"
+name: conditions-boca
+description: Named-spot water question loads gillby-conditions and makes one summary call
+tags: [smoke, conditions]
+execution:
+  max_turns: 10
+  allowed_tools: [Skill]
+  prompt: "How's the water at Boca Inlet right now? Is it rough?"
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?gillby-conditions"'
+  - name: summary-call
+    type: tool_used
+    tool: mcp__plugin_gillby_gillby__get_conditions
+    input_match: '"spot":"boca-inlet".*"view":"summary"|"view":"summary".*"spot":"boca-inlet"'
+  - name: no-invented-boat
+    type: tool_used
+    tool: mcp__plugin_gillby_gillby__get_conditions
+    input_match: '"boat"'
+    min: 0
+    max: 0
+  - name: cites-advisory
+    type: regex
+    pattern: "small craft advisory"
+    flags: i
+  - name: grounded
+    type: llm
+    criteria: |
+      PASS if the reply says conditions at the inlet are rough or no-go, gives wave height in ft, wave period in s and wind in kt, and mentions the Small Craft Advisory.
+      FAIL if it says conditions are fine, gives no numbers, describes lightning as "clear" or "safe", or promises the trip is safe.

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gillby": {
+      "type": "http",
+      "url": "https://gillby.vercel.app/mcp"
+    }
+  }
+}
