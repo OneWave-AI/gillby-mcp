@@ -1,9 +1,6 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/gillby-logo-light.svg">
-    <img src="assets/gillby-logo.svg" alt="Gillby" width="260">
-  </picture>
-</p>
+![Gillby](assets/gillby-logo.svg)
+
+![Gillby icon](.claude-plugin/icon.png)
 
 <h1 align="center">Gillby MCP</h1>
 
