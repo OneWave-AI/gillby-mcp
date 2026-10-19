@@ -153,3 +153,7 @@ Build with ordinary HTTP GET requests as well as MCP. Public marine endpoints ne
 - FAQ: https://gillby.vercel.app/faq
 
 Preserve source names, timestamps and unavailable states. Honor HTTP 429 and Retry-After. Gillby API and MCP share admission limits.
+
+## License
+
+The plugin, skills, agents, evals and docs in this repo are [MIT](LICENSE). The Gillby name and logo, the hosted service, its source code and the data it returns are not; see [LICENSE](LICENSE) for the scope.
