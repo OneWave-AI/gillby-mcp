@@ -1,3 +1,7 @@
+# Hurricane data — October 19, 2026
+
+Added `get_hurricanes` and `get_hurricane_history` for active NHC storms and 2000–2025 HURDAT2 tracks. See [HURRICANES.md](HURRICANES.md) for examples and coverage.
+
 # Changelog
 
 Changes to the hosted Gillby MCP server and HTTP API that affect agents and integrations. API v1 changes are additive; anything breaking gets a new version and at least 90 days of notice.

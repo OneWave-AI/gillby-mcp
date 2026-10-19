@@ -129,148 +129,171 @@ claude plugin eval . --judge-model sonnet
 
 ## Tools
 
-96 tools on the hosted server, generated from the live [tool reference](https://www.gillby.com/llms-full.txt). Start with `list_spots` and `get_conditions` with `view=summary`; that one result carries the forecast, tides, scores, advisories, hazards, lightning and source freshness.
+104 tools on the hosted server, generated from the live [tool reference](https://www.gillby.com/llms-full.txt). Start with `list_spots` and `get_conditions` with `view=summary`; that one result carries the forecast, tides, scores, advisories, hazards, lightning and source freshness.
 
 <details>
-<summary>All 96 tools by category</summary>
+<summary>All 104 tools by category</summary>
 
 **Start here** (7)
 
 | Tool | What it does |
 |---|---|
-| `get_health` | Worker heartbeat, stale feed families, government dataset status and the GLM lightning feed |
-| `list_spots` | Every named Florida spot the app scores, with its lat/lon, kind, region and the NOAA stations used for it |
-| `get_spot` | A single spot record plus now.scores (go/caution/nogo per activity for the current hour) when the worker has scored it |
-| `get_conditions` | Full bundle for a spot: waves, wind, tide, water temp, activity scores with reasons, 7-day hourly forecast, tides, alerts, hazards, lightning and a briefing |
-| `get_briefing` | Short headline and body written from live data, with numbers validated against the inputs |
-| `get_source_status` | Fresh, stale, unavailable and QC-rejected sources used by spot conditions |
-| `get_data_coverage` | Published dataset inventory and verified spot coverage; distinguishes unavailable data |
+| `get_health` | Rolls up whether the ingest worker is running, which feed families (ndbc, coops, nws, openmeteo, goes19, coastwatch...) have stale sources, government dataset status and the GLM lightning feed. status is ok \| degraded \| down; HTTP 503 only when down. Check this before trusting 'no data' from other tools. detail=true lists every source. |
+| `list_spots` | Every named Florida spot the app scores, with its lat/lon, kind, region and the NOAA stations used for it. Use the returned id with conditions, forecast, tides, hazards and briefing tools. include=status adds the current-hour go/caution/nogo band per activity. Use this for a map of verified coastal spots: the MCP app panel renders an interactive Florida map with selectable spots, nearby camera markers and conditions. Coordinates are geographic locations, not safe navigation routes. |
+| `get_spot` | A single spot record plus now.scores (go/caution/nogo per activity for the current hour) when the worker has scored it. |
+| `get_conditions` | The full conditions bundle for a named spot: current waves (ft, s, deg FROM), wind (kt), tide (ft MLLW), water temp (F), activity scores with reasons, 7-day hourly forecast, hi/lo tides, best windows, NWS alerts, rip/red tide/bacteria hazards, lightning and an AI briefing. Kitesurf: kiteboarding contains rider-specific weather screening and unverified launch status; supply kiteStyle, kiteExperience, kiteMinWindKt and kiteMaxWindKt. No overall kite score or verified launch is implied. Activities: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim scores are absent without shoreline observations; do not substitute other activity scores. Prefer view=summary unless you need every hour. boat=<id> adds boat-specific chop comfort. For an arbitrary lat/lon use get_point_conditions. Start here for a current spot question with view=summary: this single result includes forecast, tides, scores, advisories, hazards, lightning and source status. Avoid duplicate hazard/tide calls unless a needed detail is absent. For beach questions, sea-model wave heights and NWS breaking-surf heights measure different things; their difference alone is not a forecast conflict. A swim no-go must not be followed by a recommendation to wade. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `get_briefing` | A short headline + <=60-word body written from the live data (numbers validated against the fact sheet; falls back to a template when no model is available). source says claude/openai/template. Rate limited: may call an LLM on a cold cache. |
+| `get_source_status` | Fresh, stale, unavailable and QC-rejected sources used by spot conditions. |
+| `get_data_coverage` | Published dataset inventory and verified spot coverage; distinguishes unavailable data. |
 
-**Forecast and conditions** (22)
-
-| Tool | What it does |
-|---|---|
-| `get_forecast` | Hourly forecast for a spot or lat/lon: waves, swell split, wind, gusts, tide, current, rain and thunder chance, and activity scores |
-| `get_water_temperature` | Water temperature for a verified spot over the next hours |
-| `get_waves` | Wave height, period and swell for a verified spot over the next hours |
-| `get_wind` | Wind and gusts for a verified spot over the next hours |
-| `get_rain` | Rain probability and accumulation for a verified spot over the next hours |
-| `get_thunder_forecast` | Thunderstorm forecast for a verified spot over the next hours |
-| `get_uv_forecast` | UV forecast for a verified spot over the next hours |
-| `get_visibility` | Atmospheric visibility for a verified spot over the next hours |
-| `get_air_temperature` | Air temperature for a verified spot over the next hours |
-| `get_pressure` | Air pressure for a verified spot over the next hours |
-| `get_cloud_cover` | Cloud cover for a verified spot over the next hours |
-| `get_chop` | Boat ride and chop (use get_chop_history for past trends) for a verified spot over the next hours |
-| `get_currents` | Predicted inlet currents for a verified spot over the next hours |
-| `get_gulf_stream` | Approximate Gulf Stream edge for a verified spot |
-| `get_surf_forecast` | NWS surf zone forecast for a verified spot |
-| `get_chop_history` | Gillby's native 0-10 chop series for up to 31 days, daily mean/max, coverage and 7-day trends |
-| `get_history` | Read stored observations or forecast history for source and var |
-| `get_observations` | Actual buoy and station observations for a spot with timestamps |
-| `get_wave_models` | Published wave-model series and model spread for a spot; absent models stay unavailable |
-| `get_departure_windows` | Published best windows filtered by activity |
-| `get_activity_scores` | Hourly published activity scores with reasons and vetoes |
-| `compare_spots` | Compare current conditions for up to five verified comma-separated spot IDs |
-
-**Tides, hazards and alerts** (9)
+**Forecast and conditions** (23)
 
 | Tool | What it does |
 |---|---|
-| `get_tides` | High and low tides (ft above MLLW, NOAA CO-OPS), hourly tide curve, inlet current, sunrise/sunset and moon phase |
-| `get_hazards` | Active NWS marine alerts plus rip risk, red tide, bacteria, sargassum, water clarity, king tide, Gulf Stream distance and lightning |
-| `get_lightning` | GOES-19 GLM lightning |
-| `get_navigation_notices` | USCG local notices to mariners from the published agency dataset, with source and availability |
-| `get_derelict_vessels` | Reported derelict vessels from the published agency dataset, with source and availability |
-| `get_park_alerts` | Coastal national park alerts and closures from the published agency dataset, with source and availability |
-| `get_rip_risk` | Rip current risk for a verified spot |
-| `get_king_tide` | King tide forecast for a verified spot |
-| `get_marine_alerts` | Active and upcoming alerts for a spot, retaining start/end times and source links |
+| `get_forecast` | Hourly forecast for a spot (or lat+lon) starting at `time` (default now) for `hours` hours: waves, swell/wind-wave split, wind, gusts, tide, current, precip/thunder chance, and go/caution/nogo scores with reasons per activity. Also returns 7 daily score rows and best windows. |
+| `get_rainfall_history` | Observed daily precipitation from NOAA NCEI GHCN-Daily at one of six selected Florida airport stations, not archived forecasts. Required station, start and end (YYYY-MM-DD); completed dates only, 1900 onward, at most 366 inclusive days per request. Public, no API key. Returns daily values in inches, original flags, coverage, monthly summaries and totals. totalIn is null for incomplete coverage; partialTotalIn is only the sum of accepted reported values. Trace is not dry. Presumed-zero, incomplete-period and quality-flagged reports are excluded. Reporting dates are station climate days, not UTC hours. A station does not measure rainfall at a nearby beach, inlet or across a region. Recent records may lag or be revised. Use for how much precipitation fell: NOAA observed station records, not forecast archives. Preserve station, reporting dates, trace days, missing/excluded counts and coverage. Never present partialTotalIn as a complete monthly/yearly total. Station rainfall is not an area-wide measurement. Use get_rain for future amounts and get_history source=forecast:om_weather_best var=precip_in only for archived model estimates. |
+| `get_water_temperature` | Water temperature for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_waves` | Wave height, period and swell for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_wind` | Wind and gusts for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_rain` | Rain forecast probability and amount for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_thunder_forecast` | Thunderstorm forecast for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_uv_forecast` | UV forecast for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_visibility` | Atmospheric visibility for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_air_temperature` | Air temperature for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_pressure` | Air pressure for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_cloud_cover` | Cloud cover for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_chop` | Boat ride and chop (use get_chop_history for past trends) for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. For chop history or trends use get_chop_history with a verified spot ID. Preserve recorded versus reconstructed provenance, native 0–10 index and labels, coverage and gaps. Never invent assistant-defined rough/calm thresholds or silently substitute wave/wind series for native chop. |
+| `get_currents` | Predicted inlet currents for a verified spot over the next hours. Includes timestamp, source status and explicit nulls when unavailable. Water temperature is F; atmospheric visibility is mi, not underwater visibility; current sign follows the assigned station convention. |
+| `get_gulf_stream` | Approximate Gulf Stream edge for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_surf_forecast` | NWS surf zone forecast for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_chop_history` | Gillby's native 0-10 chop series: the latest 72 hours publicly, up to 31 days with a free Gillby account (OAuth sign-in); daily mean/max, coverage and 7-day trends. Recorded outputs and historical model reconstructions are identified separately. Never replace these with assistant-defined Calm/Moderate/Rough cutoffs or fabricate gaps. For chop history or trends use get_chop_history with a verified spot ID. Preserve recorded versus reconstructed provenance, native 0–10 index and labels, coverage and gaps. Never invent assistant-defined rough/calm thresholds or silently substitute wave/wind series for native chop. |
+| `get_history` | Read stored observations or forecast history for source and var. Forecast source uses forecast:model and requires spot. Public access covers the latest 72 hours; a free Gillby account (OAuth sign-in) allows windows up to 31 days; up to 1000 points. Latest revision/run wins. Rejected and suspect rows are excluded; unreviewed rows retain quality metadata. This is a stored source archive. source=forecast:* returns model estimates or predictions, even when valid times are in the past; it does not establish observed rainfall. For measured historical daily precipitation use get_rainfall_history and preserve coverage. For chop trends use get_chop_history with recorded/reconstructed provenance and gaps. |
+| `get_observations` | Actual buoy and station observations for a spot with timestamps. These may differ from blended forecast conditions. |
+| `get_wave_models` | Published wave-model series and model spread for a spot; absent models stay unavailable. |
+| `get_departure_windows` | Published best windows filtered by activity. No windows means none were supplied, not a guarantee that every other hour is unsafe. |
+| `get_activity_scores` | Hourly published activity scores with reasons and vetoes. Missing activity scores are unscored. |
+| `compare_spots` | Compare current conditions for up to five verified comma-separated spot IDs. Partial failures remain explicit. |
+
+**Tides, hazards and alerts** (11)
+
+| Tool | What it does |
+|---|---|
+| `get_tides` | Predicted high and low tides (ft above MLLW, NOAA CO-OPS) for the next `days` days at a spot or lat+lon, the hourly tide height curve and inlet current (kt, + flood / - ebb), plus sunrise/sunset and moon phase. Times are ISO with the Eastern offset. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `get_hazards` | Active NWS marine/coastal alerts (small craft, rip current, high surf, special marine, waterspout...) plus water hazards for a spot or lat+lon: rip current risk, red tide (FWC samples), bacteria (FDOH), sargassum, water clarity, king tide, Gulf Stream distance, lightning. Use before recommending swimming, diving or running an inlet. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `get_lightning` | GOES-19 GLM lightning. With lat+lon: level (clear \| watch 10-25 mi \| danger < 10 mi in the last 5 min), nearest strike distance (mi) and time, strikes in 15 min, all-clear time (30 min after the last strike within 10 mi), SPC thunder outlook, and the last 30 min of flashes. Without lat/lon: status per spot. When the feed is stale, status is null and unavailableReason explains why (never a false 'clear'). Prefer list_spots for named spot coordinates. State no flashes detected in the observed window rather than no lightning exists. Stale/incomplete coverage means unknown. Do not supply detection rates that are absent from this result. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `get_hurricane_history` | Search 26 completed seasons of NOAA NHC HURDAT2 best-track history (2000–2025), Atlantic and eastern/central Pacific. Includes tropical cyclones, not only hurricanes. Filter by basin, year range, name, storm ID, hurricane strength or recorded landfall. Paginated summaries by default; includeTrack=true returns UTC positions, sustained wind kt, pressure mb, status, special-event flags and 34/50/64 kt wind radii in nautical miles ordered NE, SE, SW, NW. Missing measurements are null. Landfall flags cover any coastline, not specifically the US. Finalized retrospective tracks are not forecasts; current 2026 advisories use get_hurricanes. Historical tracks alone do not measure local damage or future risk. |
+| `get_hurricanes` | Active NHC tropical cyclones in the Atlantic and eastern/central Pacific. Returns position, maximum sustained wind (kt), pressure (mb), movement (degrees toward and kt), advisory timestamps and official advisory/forecast/cone links. Preserve stale/unavailable status. An empty active-storm list does not rule out developing systems or local hazards. The cone is not an impact boundary. Follow official local warnings. |
+| `get_navigation_notices` | USCG local notices to mariners from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_derelict_vessels` | Reported derelict vessels from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_park_alerts` | Coastal national park alerts and closures from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_rip_risk` | Rip current risk for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_king_tide` | King tide forecast for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_marine_alerts` | Active and upcoming alerts for a spot, retaining start/end times and source links. |
 
 **Routes, depth and boats** (7)
 
 | Tool | What it does |
 |---|---|
-| `list_boats` | Boats with published specs (LOA, beam, draft, deadrise, weight, hull type, fuel, cruise speed) and their sources |
-| `get_boat` | A single boat record from the library |
-| `plan_route` | Chart-aware water routing between from/to spot IDs or lat,lon (free account) |
-| `get_depth` | NOAA ENC chart depth and optional DEM depth at a Florida coordinate, with charted hazards, channels and restriction zones |
-| `list_sandbars` | Search published sandbars by name or west,south,east,north bbox |
-| `list_bridges` | Search published bridges by name or west,south,east,north bbox |
-| `check_route_conditions` | Weather and marine conditions at up to five ordered spot IDs |
+| `list_boats` | Boats with published specs (LOA, beam, draft, deadrise, weight, hull type, fuel, cruise speed) and their sources. Pass a boat id to conditions/forecast/routes for boat-specific comfort and draft. The user's boat is contender-21-open-2008. |
+| `get_boat` | A single boat record from the library. |
+| `plan_route` | Requires a free Gillby account (OAuth sign-in). Chart-aware water routing between from/to spot IDs or lat,lon. Supply a confirmed library boat ID or measured draft, with beam, airDraft, ukc, bridgeMargin and speed overrides in feet/knots. Checks chart depths and tides along the geometry, samples across supplied beam, identifies bridges and restrictions, checks predicted MHW bridge clearance when data permits, and adds route weather samples. Does not infer saved vessel settings. Supports ordered via stops and a hard corridor=icw constraint. Cold charts may take 110 seconds. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `get_depth` | Actual NOAA ENC chart depth and optional DEM depth at a Florida coordinate, with charted hazards, channel context and restriction zones. A point check does not prove clearance along a route. Interpretation: omit boat unless the user supplied or confirmed it. Describe lightning as flashes observed or not detected in the stated window, never a clear/safe guarantee. Report unavailable/QC-failed sources even when freshness.stale=false; fresh does not mean every source is usable. Model sea height is not breaking surf height. Tide heights at different local MLLW gauges do not establish relative channel depths. High tide is not necessarily slack current. For kitesurfing use get_conditions with kiteStyle (freeride/waves/foil), kiteExperience and rider-supplied kiteMinWindKt/kiteMaxWindKt. Read kiteboarding for weather screening, gust spread and explicitly unverified launch status. Never infer the rider wind range, legal launch access or rescue coverage. Activity keys: kite, surf, skim (flatland), skim-wave (wave riding), paddle (flatwater paddleboard), sup-surf (SUP surf). Skim suitability is unscored without shoreline observations; missing scores must not inherit another activity. Offshore wind can favor surf while increasing paddleboard drift risk. A point depth cannot prove route clearance. Do not invent detection percentages, future readings, vessel ownership, or app settings instructions. |
+| `list_sandbars` | Search published sandbars by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. For a named recreational/scored spot such as Lake Boca Sandbar, use list_spots first to get verified coordinates and IDs. This search is for places absent from the spot catalog; avoid repeated searches for an already cataloged spot. |
+| `list_bridges` | Search published bridges by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `check_route_conditions` | Weather and marine conditions at up to five ordered spot IDs. Checks sampled stops only; does not create a navigable route or check depth, bridges, zones, or conditions between stops. |
 
 **Places and cams** (16)
 
 | Tool | What it does |
 |---|---|
-| `get_protected_areas` | Marine protected areas from the published agency dataset, with source and availability |
-| `find_marinas` | Search published marinas by name or west,south,east,north bbox |
-| `find_fuel_docks` | Search published fuel docks by name or west,south,east,north bbox |
-| `find_boat_ramps` | Search published boat ramps by name or west,south,east,north bbox |
-| `find_anchorages` | Search published anchorages by name or west,south,east,north bbox |
-| `find_reefs` | Search published reefs by name or west,south,east,north bbox |
-| `find_wrecks` | Search published wrecks by name or west,south,east,north bbox |
-| `find_dive_sites` | Search published dive sites by name or west,south,east,north bbox |
-| `find_beaches` | Search published beaches by name or west,south,east,north bbox |
-| `find_waterfront_dining` | Search published waterfront restaurants by name or west,south,east,north bbox |
-| `find_inlets` | Search published inlets by name or west,south,east,north bbox |
-| `find_piers` | Search published piers by name or west,south,east,north bbox |
-| `search_pois` | Search public marine POIs |
-| `get_poi` | Look up a published coastal POI by its exact ID |
-| `list_cams` | Live source links and credits near a spot or coordinate; archived imagery may be unavailable |
-| `get_camera_image` | Fetch a public camera JPEG with source timestamp metadata for the Gillby panel |
+| `get_protected_areas` | Marine protected areas from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `find_marinas` | Search published marinas by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_fuel_docks` | Search published fuel docks by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_boat_ramps` | Search published boat ramps by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_anchorages` | Search published anchorages by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_reefs` | Search published reefs by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_wrecks` | Search published wrecks by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_dive_sites` | Search published dive sites by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_beaches` | Search published beaches by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_waterfront_dining` | Search published waterfront restaurants by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_inlets` | Search published inlets by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `find_piers` | Search published piers by name or west,south,east,north bbox. Verify access and operating details with the facility. Bridge data is published, not a live clearance calculation. |
+| `search_pois` | Search public marine POIs. Optional cats is a comma-separated category list. Fuel prices and current bridge clearance are not verified. |
+| `get_poi` | Look up a published coastal POI by its exact ID. Does not refresh facility details or calculate live bridge clearance. |
+| `list_cams` | Live source links and credits near a spot or coordinate; archived imagery may be unavailable. |
+| `get_camera_image` | Fetch a public camera JPEG with source timestamp metadata for the Gillby panel. Returns image bytes through MCP, without a browser network request. |
 
-**Water quality and marine life** (17)
+**Water quality and marine life** (19)
 
 | Tool | What it does |
 |---|---|
-| `get_shark_research` | Published Florida shark research occurrences with observation dates, location uncertainty, source credits and licenses |
-| `get_jellyfish_observations` | Published Florida jellyfish, box jellyfish and man-of-war observations from OBIS and iNaturalist, with dates and credits |
-| `get_canal_discharges` | Canal discharge and freshwater releases from the published agency dataset, with source and availability |
-| `get_lake_okeechobee` | Lake Okeechobee stage and releases from the published agency dataset, with source and availability |
-| `get_usgs_water` | USGS flow, salinity and water temperature from the published agency dataset, with source and availability |
-| `get_chlorophyll` | Satellite chlorophyll and water color from the published agency dataset, with source and availability |
-| `get_temperature_fronts` | Satellite sea temperature fronts from the published agency dataset, with source and availability |
-| `get_coral_heat` | Coral heat stress and bleaching outlook from the published agency dataset, with source and availability |
-| `get_algae_reports` | Reported algae samples from the published agency dataset, with source and availability |
-| `get_fish_kills` | Reported fish kills from the published agency dataset, with source and availability |
-| `get_pollution_notices` | Pollution incident notices from the published agency dataset, with source and availability |
-| `get_coastal_sensors` | SECOORA coastal sensor observations from the published agency dataset, with source and availability |
-| `get_sargassum_outlook` | Sargassum research product availability from the published agency dataset, with source and availability |
-| `get_beach_bacteria` | Beach bacteria samples for a verified spot |
-| `get_red_tide` | Red tide samples for a verified spot |
-| `get_water_clarity` | Satellite water clarity for a verified spot |
-| `get_sargassum` | Local sargassum risk for a verified spot |
+| `get_shark_research` | Published Florida shark research occurrences with observation dates, location uncertainty, source credits and licenses. Historical acoustic detections and tag releases, not live shark tracking or beach warnings. No records does not mean sharks are absent. Use bbox to narrow the published sample; limit defaults to 20 (maximum 100). Shark, jellyfish and man-of-war records are dated published observations, not live tracking, beach warnings, abundance estimates or swimming-safety scores. Preserve observation dates, uncertainty, attribution and source availability. No records does not mean the animals are absent. Source checked time is not observation time. Man-of-war are siphonophores, not true jellyfish. Local lifeguard links are not ingested current warnings; check the source report date. Never apply NOAA's Chesapeake sea-nettle forecast to Florida. |
+| `get_jellyfish_observations` | Published Florida jellyfish, box jellyfish and man-of-war observations from OBIS and iNaturalist, with observation dates, uncertainty, observer credits and licenses. Includes official Boca Raton/Fort Lauderdale lifeguard-report links. Community records are not live beach warnings; no sightings does not establish absence. Man-of-war are siphonophores. Use bbox to narrow the sample; limit defaults to 20 (maximum 100). Shark, jellyfish and man-of-war records are dated published observations, not live tracking, beach warnings, abundance estimates or swimming-safety scores. Preserve observation dates, uncertainty, attribution and source availability. No records does not mean the animals are absent. Source checked time is not observation time. Man-of-war are siphonophores, not true jellyfish. Local lifeguard links are not ingested current warnings; check the source report date. Never apply NOAA's Chesapeake sea-nettle forecast to Florida. |
+| `get_canal_discharges` | Canal discharge and freshwater releases from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_lake_okeechobee` | Lake Okeechobee stage and releases from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_usgs_water` | USGS flow, local gauge height, salinity and water temperature from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_florida_rivers` | Florida NOAA river and water gauges, observed readings and separate forecast summaries from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_florida_lakes` | Florida USGS lake monitoring inventory, levels with original vertical datum, temperature and storage where measured; historical stations and stale readings identified from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_chlorophyll` | Satellite chlorophyll and water color from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_temperature_fronts` | Satellite sea temperature fronts from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_coral_heat` | Coral heat stress and bleaching outlook from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_algae_reports` | Reported algae samples from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_fish_kills` | Reported fish kills from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_pollution_notices` | Pollution incident notices from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_coastal_sensors` | SECOORA coastal sensor observations from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_sargassum_outlook` | Sargassum research product availability from the published agency dataset, with source and availability. Empty reports do not establish safe conditions. |
+| `get_beach_bacteria` | Beach bacteria samples for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_red_tide` | Red tide samples for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_water_clarity` | Satellite water clarity for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
+| `get_sargassum` | Local sargassum risk for a verified spot. Preserve source sample dates and unavailable states. Satellite clarity is a relative index, not measured dive visibility. |
 
 **Datasets** (2)
 
 | Tool | What it does |
 |---|---|
-| `list_datasets` | Index of government datasets (discharges, Lake O, USGS, CoastWatch, coral heat, USCG notices and more) with status and last-good time |
-| `get_dataset` | The latest payload of one dataset from list_datasets, including sharks and jellyfish |
+| `list_datasets` | Index of government datasets (SFWMD discharges, Lake O, USGS, CoastWatch chlorophyll / SST fronts, coral heat, USCG notices, derelicts, MPAs, algae, fish kills, shark research and jellyfish/man-of-war observations) with ok/stale/unavailable status and last-good time. |
+| `get_dataset` | The latest payload of one dataset from list_datasets, including sharks and jellyfish. These marine-life records are dated observations, not live beach warnings; no records does not imply absence. bbox filters list datasets; category filters USCG notices (e.g. bridge,hazard); homeZone=true limits discharges to the home zone; geometry=true includes MPA polygons. 503 when the dataset has never loaded. Shark, jellyfish and man-of-war records are dated published observations, not live tracking, beach warnings, abundance estimates or swimming-safety scores. Preserve observation dates, uncertainty, attribution and source availability. No records does not mean the animals are absent. Source checked time is not observation time. Man-of-war are siphonophores, not true jellyfish. Local lifeguard links are not ingested current warnings; check the source report date. Never apply NOAA's Chesapeake sea-nettle forecast to Florida. |
 
 **Your account (OAuth)** (16)
 
 | Tool | What it does |
 |---|---|
-| `get_my_vessel` | Requires OAuth login to your Gillby account |
-| `plan_my_route` | Requires OAuth login |
-| `list_my_places` | Read your saved places and favorites |
-| `get_my_place` | Read one saved place |
-| `save_my_place (writes to your account)` | Save a place or favorite |
-| `update_my_place (writes to your account)` | Update specified saved-place fields |
-| `delete_my_place (writes to your account)` | Delete a saved place |
-| `list_my_trips` | Read your saved trips |
-| `get_my_trip` | Read one saved trip |
-| `save_my_trip (writes to your account)` | Save a trip |
-| `update_my_trip (writes to your account)` | Update specified trip fields; this does not recheck route safety |
-| `delete_my_trip (writes to your account)` | Delete a saved trip |
-| `get_my_settings` | Read saved vessel, preferences and notification settings |
-| `update_my_settings (writes to your account)` | Update only specified vessel or preference fields |
-| `get_my_notification_settings` | Read notification preferences and actual delivery availability |
-| `update_my_notification_settings (writes to your account)` | Save notification preferences |
+| `get_my_vessel` | Requires OAuth login to your Gillby account. Reads only your saved vessel and route clearance settings. No writes and no other account access. |
+| `plan_my_route` | Requires OAuth login. Uses your saved vessel, draft, air draft, speed, under-keel and bridge margins for actual chart routing. Explicit measurements override saved values. Never guesses missing required measurements. |
+| `list_my_places` | Read your saved places and favorites. Requires your Gillby account and explicit account consent. |
+| `get_my_place` | Read one saved place. Requires your Gillby account and explicit account consent. |
+| `save_my_place` | Save a place or favorite. Supply a unique requestId and reuse it when retrying the same save; reused IDs with different input are rejected. Requires your Gillby account and explicit account consent. |
+| `update_my_place` | Update specified saved-place fields. Requires your Gillby account and explicit account consent. |
+| `delete_my_place` | Delete a saved place. Repeat deletes return deleted=false. Requires your Gillby account and explicit account consent. |
+| `list_my_trips` | Read your saved trips. Requires your Gillby account and explicit account consent. |
+| `get_my_trip` | Read one saved trip. Requires your Gillby account and explicit account consent. |
+| `save_my_trip` | Save a trip. Supply a unique requestId and reuse it on retry. Saving does not assess navigation safety. Requires your Gillby account and explicit account consent. |
+| `update_my_trip` | Update specified trip fields; this does not recheck route safety. Requires your Gillby account and explicit account consent. |
+| `delete_my_trip` | Delete a saved trip. Repeat deletes return deleted=false. Requires your Gillby account and explicit account consent. |
+| `get_my_settings` | Read saved vessel, preferences and notification settings. Missing vessel measurements remain null. Requires your Gillby account and explicit account consent. |
+| `update_my_settings` | Update only specified vessel or preference fields. Requires your Gillby account and explicit account consent. |
+| `get_my_notification_settings` | Read notification preferences and actual delivery availability. Requires your Gillby account and explicit account consent. |
+| `update_my_notification_settings` | Save notification preferences. Hosted delivery is in-app only; this does not enable push, email or notifications on this AI client. Requires your Gillby account and explicit account consent. |
+
+**Other** (3)
+
+| Tool | What it does |
+|---|---|
+| `get_fishing_insights` | Published Florida mahi, blue/white marlin, tarpon and snook evidence: dated NOAA commercial catches and research/community occurrences, source/license credits, coordinate uncertainty, seasonal record counts and configurable 0.25/0.10/0.05/0.02/0.01/0.005-degree heatmap cells. Historical records are not live fish locations, migration tracks, abundance, catch rates or catch probabilities. Sampling/fishing effort is uncorrected; absent records do not establish fish absence. from/to are inclusive YYYY-MM-DD observation dates; month pools all selected years. Source check time is not observation time. Recency weighting defaults to recent: exponential 365-day half-life based on observation dates, not source retrieval. weighting=historical gives equal weights. No upstream downloads on tool calls. Preserve species, observation dates, source credits, coordinate uncertainty, query coverage, partial/stale flags and fishing-effort bias. Heatmap color is record density, never fish abundance or catch odds. Commercial catches and occurrences must remain distinguishable. No generated migration paths. |
+| `get_fishing_records` | Published Florida mahi, blue/white marlin, tarpon and snook evidence: dated NOAA commercial catches and research/community occurrences, source/license credits, coordinate uncertainty, seasonal record counts and configurable 0.25/0.10/0.05/0.02/0.01/0.005-degree heatmap cells. Historical records are not live fish locations, migration tracks, abundance, catch rates or catch probabilities. Sampling/fishing effort is uncorrected; absent records do not establish fish absence. from/to are inclusive YYYY-MM-DD observation dates; month pools all selected years. Source check time is not observation time. Recency weighting defaults to recent: exponential 365-day half-life based on observation dates, not source retrieval. weighting=historical gives equal weights. No upstream downloads on tool calls. Preserve species, observation dates, source credits, coordinate uncertainty, query coverage, partial/stale flags and fishing-effort bias. Heatmap color is record density, never fish abundance or catch odds. Commercial catches and occurrences must remain distinguishable. No generated migration paths. |
+| `get_fishing_heatmap` | Published Florida mahi, blue/white marlin, tarpon and snook evidence: dated NOAA commercial catches and research/community occurrences, source/license credits, coordinate uncertainty, seasonal record counts and configurable 0.25/0.10/0.05/0.02/0.01/0.005-degree heatmap cells. Historical records are not live fish locations, migration tracks, abundance, catch rates or catch probabilities. Sampling/fishing effort is uncorrected; absent records do not establish fish absence. from/to are inclusive YYYY-MM-DD observation dates; month pools all selected years. Source check time is not observation time. Recency weighting defaults to recent: exponential 365-day half-life based on observation dates, not source retrieval. weighting=historical gives equal weights. No upstream downloads on tool calls. Preserve species, observation dates, source credits, coordinate uncertainty, query coverage, partial/stale flags and fishing-effort bias. Heatmap color is record density, never fish abundance or catch odds. Commercial catches and occurrences must remain distinguishable. No generated migration paths. |
 
 </details>
+
+## Hurricanes and historical tracks
+
+Use `get_hurricanes` for active NHC cyclones and `get_hurricane_history` for **2000–2025** HURDAT2 history: **973 cyclones and 27,812 track records** in the Atlantic and eastern/central Pacific. Set `includeTrack=true` to retrieve a storm's recorded track from its first observation to its last, with UTC positions, wind, pressure and landfall flags. Filter by basin, season, name or exact storm ID; paginate summaries before requesting many full tracks. No public-data login or API key.
+
+```json
+{"name":"get_hurricane_history","arguments":{"query":{"id":"al122005","includeTrack":true}}}
+```
+
+Read the [complete hurricane API/MCP guide](HURRICANES.md), [app](https://www.gillby.com/hurricanes) and [live input schemas](https://www.gillby.com/integrations/tools#get_hurricane_history). Finalized history ends in 2025; ongoing-season advisories use the active tool. Tracks are retrospective observations, not forecasts or damage estimates.
 
 ## HTTP API
 
