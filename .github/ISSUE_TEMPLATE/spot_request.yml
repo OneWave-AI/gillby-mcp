@@ -1,0 +1,48 @@
+name: Add my spot
+description: Ask for an inlet, beach, sandbar, ramp or other Florida spot to be added
+title: "Spot request: "
+labels: ["spot request"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Spot name
+      placeholder: e.g. Jupiter Inlet, Peanut Island sandbar, Spanish River ramp
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of spot
+      options:
+        - Inlet
+        - Beach
+        - Sandbar
+        - Boat ramp
+        - Reef or wreck
+        - Offshore area
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: Lat/lon, a map link, or the nearest town.
+    validations:
+      required: true
+  - type: checkboxes
+    id: activities
+    attributes:
+      label: What do you do there
+      options:
+        - label: Boating
+        - label: Fishing
+        - label: Surf, kite or paddle
+        - label: Swimming or beach day
+        - label: Diving or snorkeling
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything local we should know
+      description: Nearby buoy or tide station, how the spot behaves, public source links.
