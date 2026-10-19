@@ -44,7 +44,13 @@ So I built Gillby. It's a hobby and a passion project: one map and one clock for
 https://www.gillby.com/mcp
 ```
 
-Streamable HTTP transport. Public data tools are open; personal vessel, route, places, trips and settings tools require the user's Gillby OAuth.
+Streamable HTTP transport.
+
+| Access | What you get |
+|---|---|
+| **Public, no key** | Conditions, forecasts, tides, hazards, water quality, spots and places, activity scores, the latest 72 hours of history. 300 units/min per client. |
+| **Free Gillby account** (OAuth) | Everything public, plus depth-aware route planning (`plan_route`, `plan_my_route`), saved vessel, places and trips, history up to 31 days, and 1,500 units/min. |
+| **Commercial or bulk** | Separate agreement: info@onewave-ai.com |
 
 ## Quick connect
 
@@ -187,7 +193,7 @@ claude plugin eval . --judge-model sonnet
 |---|---|
 | `list_boats` | Boats with published specs (LOA, beam, draft, deadrise, weight, hull type, fuel, cruise speed) and their sources |
 | `get_boat` | A single boat record from the library |
-| `plan_route` | Chart-aware water routing between from/to spot IDs or lat,lon |
+| `plan_route` | Chart-aware water routing between from/to spot IDs or lat,lon (free account) |
 | `get_depth` | NOAA ENC chart depth and optional DEM depth at a Florida coordinate, with charted hazards, channels and restriction zones |
 | `list_sandbars` | Search published sandbars by name or west,south,east,north bbox |
 | `list_bridges` | Search published bridges by name or west,south,east,north bbox |
@@ -268,7 +274,7 @@ claude plugin eval . --judge-model sonnet
 
 ## HTTP API
 
-Everything is also available over ordinary HTTP GET. Public endpoints need no key; account endpoints need OAuth and the user's consent.
+Everything is also available over ordinary HTTP GET. Public endpoints need no key; account endpoints, route planning and history older than 72 hours need OAuth with a free Gillby account.
 
 ```bash
 curl --fail-with-body 'https://www.gillby.com/api/v1/conditions?spot=boca-inlet&view=summary'

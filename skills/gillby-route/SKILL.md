@@ -5,6 +5,8 @@ description: Plan a depth-, tide- and bridge-aware boat route in Florida with Gi
 
 # Route planning
 
+**Routing needs a free Gillby account.** `plan_route` and `plan_my_route` require the user to sign in through the connector's OAuth flow. If a call returns `authentication_required`, tell the user to connect their free Gillby account; do not fall back to guessing a route. Without an account you can still use `get_depth` for point depths, `list_sandbars`, `list_bridges` and `check_route_conditions` for weather at stops, and say clearly that none of these verify a passage.
+
 `plan_route` is chart-aware: it samples depths across the boat's beam, applies tide, finds bridges and restrictions, checks bridge clearance against predicted MHW where data allows, and samples weather along the line.
 
 ## Required inputs

@@ -4,6 +4,7 @@ Changes to the hosted Gillby MCP server and HTTP API that affect agents and inte
 
 ## 2026-10-19
 
+- **Free account for routing and long history.** `plan_route` now needs a free Gillby account (OAuth); anonymous calls return `401 authentication_required` with a sign-in challenge. `get_history` and `get_chop_history` stay public for the latest 72 hours; a free account keeps the full 31-day window. Signed-in callers also get their own rate budget of 1,500 units per minute (anonymous stays 300). This changes behavior for anonymous callers; usage logs showed no external anonymous use of these tools before the change. Commercial or bulk use: info@onewave-ai.com.
 - **New canonical URL.** The server is now listed at `https://www.gillby.com/mcp`. The old `https://gillby.vercel.app/mcp` keeps working, and account sign-in works on either host.
 
 ## 2026-10-18
