@@ -88,7 +88,7 @@ Try it: *"Use Gillby to check current conditions at Boca Inlet. Include source f
 
 ## Claude Code plugin
 
-This repo is also a Claude Code plugin: the Gillby MCP server plus 9 skills and 5 agents.
+This repo is also a Claude Code plugin: the Gillby MCP server plus 9 skills and 6 agents.
 
 ```
 /plugin marketplace add OneWave-AI/gillby-mcp
@@ -117,6 +117,7 @@ Agents and evals call tools as `mcp__plugin_gillby_gillby__<tool>`. If you also 
 | `gillby-navigator` | Charts, depth, bridges, grounding risk |
 | `gillby-fishing-guide` | Offshore and inshore fishing conditions |
 | `gillby-beach-scout` | Best beach for swim, surf, kite, snorkel |
+| `gillby-surf-guide` | Surf session windows for Florida and supported California spots |
 | `gillby-water-quality-analyst` | Dated water-quality records, explained |
 
 ### Evals
